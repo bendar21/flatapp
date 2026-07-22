@@ -1,10 +1,14 @@
 import "@/global.css";
 import { Link } from "expo-router";
-import { Text, View } from "react-native";
+import { styled } from "nativewind";
+import { Text } from "react-native";
+import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
+
+const SafeAreaView = styled(RNSafeAreaView);
 
 export default function App() {
   return (
-    <View className="flex-1 items-center justify-center bg-background">
+    <SafeAreaView className="flex-1 items-center justify-center bg-background">
       <Text className="text-xl font-bold text-success">
         Welcome to Nativewind!
       </Text>
@@ -32,13 +36,14 @@ export default function App() {
       >
         spotify subscription{" "}
       </Link>
-      <Link href={{
-        pathname: "/subscriptions/[id]",
-        params: { id: "claude" },
-      }} >
+      <Link
+        href={{
+          pathname: "/subscriptions/[id]",
+          params: { id: "claude" },
+        }}
+      >
         claude subscription
-        </Link>
-      
-    </View>
+      </Link>
+    </SafeAreaView>
   );
 }
