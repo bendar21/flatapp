@@ -59,8 +59,8 @@ export default function App() {
     posthog.capture("subscription_created", {
       subscription_name: newSubscription.name,
       subscription_price: newSubscription.price,
-      subscription_frequency: newSubscription.frequency,
-      subscription_category: newSubscription.category,
+      subscription_frequency: newSubscription.frequency ?? "unknown",
+      subscription_category: newSubscription.category ?? "unknown",
     });
   };
 
@@ -111,7 +111,7 @@ export default function App() {
               <FlatList
                 data={upcomingSubscriptions}
                 renderItem={({ item }) => (
-                  <UpcomingSubscriptionCard {...item} />
+                  <UpcomingSubscriptionCard daysLeft={0} {...item} />
                 )}
                 keyExtractor={(item) => item.id}
                 horizontal
