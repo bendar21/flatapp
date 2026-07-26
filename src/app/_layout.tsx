@@ -1,87 +1,77 @@
 import "@/global.css";
-import { ClerkProvider, useAuth } from "@clerk/expo";
-import { tokenCache } from "@clerk/expo/token-cache";
-import { useFonts } from "expo-font";
-import {
-  SplashScreen,
-  Stack,
-  useGlobalSearchParams,
-  usePathname,
-} from "expo-router";
-import { useEffect, useRef } from "react";
-//import { posthog } from "../src/config/posthog";
+import { posthog } from "@/src/config/posthog";
+import { useUser } from "@clerk/expo";
+import { Stack } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import { usePostHog } from "posthog-react-native";
+import React, { useEffect, useRef } from "react";
 
-SplashScreen.preventAutoHideAsync();
+// Global JS error handler — catches unhandled exceptions outside the React tree
+const _prevGlobalHandler = (globalThis as any).ErrorUtils?.getGlobalHandler?.();
+(globalThis as any).ErrorUtils?.setGlobalHandler?.(
+  (error: Error, isFatal: boolean) => {
+    posthog.captureException(error);
+    _prevGlobalHandler?.(error, isFatal);
+  },
+);
 
-const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
+class RootErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
 
-if (!publishableKey) {
-  throw new Error("Add your Clerk Publishable Key to the .env file");
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    posthog.captureException(error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return null;
+    }
+    return this.props.children;
+  }
 }
 
-function RootLayoutContent() {
-  const { isLoaded: authLoaded } = useAuth();
-  const pathname = usePathname();
-  const params = useGlobalSearchParams();
-  const previousPathname = useRef<string | undefined>(undefined);
+const tokenCache = {
+  async getToken(key: string) {
+    return SecureStore.getItemAsync(key);
+  },
+  async saveToken(key: string, value: string) {
+    return SecureStore.setItemAsync(key, value);
+  },
+};
+
+function PostHogIdentifier() {
+  const { user, isLoaded } = useUser();
+  const ph = usePostHog();
+  const prevUserIdRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
-    if (previousPathname.current !== pathname) {
-      // Filter route params to avoid leaking sensitive data
-      const sanitizedParams = Object.keys(params).reduce(
-        (acc, key) => {
-          // Only include specific safe params
-          if (["id", "tab", "view"].includes(key)) {
-            acc[key] = params[key];
-          }
-          return acc;
-        },
-        {} as Record<string, string | string[]>,
-      );
-
-      // posthog.screen(pathname, {
-      //   previous_screen: previousPathname.current ?? null,
-      //   ...sanitizedParams,
-      // });
-      previousPathname.current = pathname;
+    if (!isLoaded) return;
+    if (user) {
+      const setProps: Record<string, string> = {};
+      if (user.primaryEmailAddress?.emailAddress)
+        setProps.email = user.primaryEmailAddress.emailAddress;
+      if (user.fullName) setProps.name = user.fullName;
+      ph.identify(user.id, { $set: setProps });
+      prevUserIdRef.current = user.id;
+    } else if (prevUserIdRef.current !== undefined) {
+      ph.reset();
+      prevUserIdRef.current = undefined;
     }
-  }, [pathname, params]);
+  }, [isLoaded, user, ph]);
 
-  const [fontsLoaded] = useFonts({
-    "sans-regular": require("../../assets/fonts/PlusJakartaSans-Regular.ttf"),
-    "sans-bold": require("../../assets/fonts/PlusJakartaSans-Bold.ttf"),
-    "sans-medium": require("../../assets/fonts/PlusJakartaSans-Medium.ttf"),
-    "sans-semibold": require("../../assets/fonts/PlusJakartaSans-SemiBold.ttf"),
-    "sans-extrabold": require("../../assets/fonts/PlusJakartaSans-ExtraBold.ttf"),
-    "sans-light": require("../../assets/fonts/PlusJakartaSans-Light.ttf"),
-  });
-
-  useEffect(() => {
-    // Hide splash only when both fonts and auth are loaded
-    if (fontsLoaded && authLoaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded, authLoaded]);
-
-  // Don't render app until both are ready
-  if (!fontsLoaded || !authLoaded) return null;
-
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return null;
 }
 
 export default function RootLayout() {
-  return (
-    // <PostHogProvider
-    //   client={posthog}
-    //   autocapture={{
-    //     captureScreens: false,
-    //     captureTouches: true,
-    //     propsToCapture: ["testID"],
-    //   }}
-    // >
-    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <RootLayoutContent />
-    </ClerkProvider>
-    // </PostHogProvider>
-  );
+  return <Stack />;
 }
