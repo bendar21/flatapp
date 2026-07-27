@@ -2,12 +2,10 @@ import CreateSubscriptionModal from "@/components/CreateSubscriptionModal";
 import ListHeading from "@/components/ListHeading";
 import SubscriptionCard from "@/components/SubscriptionCard";
 import UpcomingSubscriptionCard from "@/components/UpcomingSubscriptionCard";
-import { HOME_BALANCE } from "@/constants/data";
 import { icons } from "@/constants/icons";
 import images from "@/constants/images";
 import "@/global.css";
 import { useSubscriptionStore } from "@/lib/subscriptionStore";
-import { formatCurrency } from "@/lib/utils";
 import { useUser } from "@clerk/expo";
 import dayjs from "dayjs";
 import { styled } from "nativewind";
@@ -24,7 +22,7 @@ export default function App() {
     string | null
   >(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const { subscriptions, addSubscription } = useSubscriptionStore();
+  const { subscriptions, addSubscription } = useSubscriptionStore();meta quest
 
   // Get upcoming subscriptions (active subscriptions with renewal date within next 7 days)
   const upcomingSubscriptions = useMemo(() => {
@@ -84,7 +82,8 @@ export default function App() {
                   }
                   className="home-avatar"
                 />
-                <Text className="home-user-name">{displayName}</Text>
+                <Text className="home-user-name"></Text>
+                {/* Here we set to display the username of the user */}
               </View>
 
               <Pressable onPress={() => setIsModalVisible(true)}>
@@ -93,21 +92,18 @@ export default function App() {
             </View>
 
             <View className="home-balance-card">
-              <Text className="home-balance-label">Balance</Text>
+              <Text className="home-balance-label">Flat name here</Text>
 
               <View className="home-balance-row">
-                <Text className="home-balance-amount">
-                  {formatCurrency(HOME_BALANCE.amount)}
-                </Text>
-                <Text className="home-balance-date">
-                  {dayjs(HOME_BALANCE.nextRenewalDate).format("MM/DD")}
-                </Text>
+                <Text className="home-balance-amount">flat members here</Text>
+                <Text className="home-balance-date">26</Text>
               </View>
             </View>
 
             <View className="mb-5">
               <ListHeading title="Upcoming" />
 
+              {/* replace with upcoming payments and owed money */}
               <FlatList
                 data={upcomingSubscriptions}
                 renderItem={({ item }) => (
@@ -124,7 +120,7 @@ export default function App() {
               />
             </View>
 
-            <ListHeading title="All Subscriptions" />
+            <ListHeading title="Chores" />
           </>
         )}
         data={subscriptions}
