@@ -6,7 +6,7 @@ import { icons } from "@/constants/icons";
 import images from "@/constants/images";
 import "@/global.css";
 import { useSubscriptionStore } from "@/lib/subscriptionStore";
-import { useUser } from "@clerk/expo";
+import { useUser } from "@/src/context/AuthContext";
 import dayjs from "dayjs";
 import { styled } from "nativewind";
 import { usePostHog } from "posthog-react-native";
@@ -22,7 +22,7 @@ export default function App() {
     string | null
   >(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const { subscriptions, addSubscription } = useSubscriptionStore();meta quest
+  const { subscriptions, addSubscription } = useSubscriptionStore();
 
   // Get upcoming subscriptions (active subscriptions with renewal date within next 7 days)
   const upcomingSubscriptions = useMemo(() => {

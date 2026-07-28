@@ -1,5 +1,5 @@
 import images from "@/constants/images";
-import { useClerk, useUser } from "@clerk/expo";
+import { useAuth, useUser } from "@/src/context/AuthContext";
 import { styled } from "nativewind";
 import { usePostHog } from "posthog-react-native";
 import { Image, Pressable, Text, View } from "react-native";
@@ -7,7 +7,7 @@ import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 const SafeAreaView = styled(RNSafeAreaView);
 
 const Settings = () => {
-  const { signOut } = useClerk();
+  const { signOut } = useAuth();
   const { user } = useUser();
   const posthog = usePostHog();
 
