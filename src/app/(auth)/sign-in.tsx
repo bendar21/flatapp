@@ -87,7 +87,7 @@ const SignIn = () => {
               </View>
               <Text className="auth-title">Welcome back</Text>
               <Text className="auth-subtitle">
-                Sign in to see what's owing and whose turn it is
+                Sign in to see whats owing and whose turn it is
               </Text>
             </View>
 
@@ -147,7 +147,7 @@ const SignIn = () => {
 
             {/* Sign-Up Link */}
             <View className="auth-link-row">
-              <Text className="auth-link-copy">Don't have an account?</Text>
+              <Text className="auth-link-copy">Dont have an account?</Text>
               <Link href="/(auth)/sign-up" asChild>
                 <Pressable>
                   <Text className="auth-link">Create Account</Text>

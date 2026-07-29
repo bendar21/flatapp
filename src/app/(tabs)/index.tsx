@@ -32,9 +32,7 @@ export default function Home() {
           Youre signed in 🎉
         </Text>
         <Text className="text-base font-sans-medium text-muted-foreground">
-          This is Home — swap it for whatever the app actually does. Explore and
-          Activity are empty starter tabs; Settings already has sign-out wired
-          up.
+          Place holder page.
         </Text>
       </View>
     </SafeAreaView>

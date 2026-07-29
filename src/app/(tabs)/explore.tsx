@@ -9,7 +9,7 @@ export default function Explore() {
     <SafeAreaView className="flex-1 bg-background items-center justify-center p-5">
       <Text className="text-2xl font-sans-bold text-primary mb-2">Explore</Text>
       <Text className="text-base font-sans-medium text-muted-foreground text-center">
-        Empty starter screen — build this out next.
+        Empty starter screen.
       </Text>
     </SafeAreaView>
   );
