@@ -1,6 +1,6 @@
 import { tabs } from "@/constants/data";
 import { colors, components } from "@/constants/theme";
-import { useAuth } from "@clerk/expo";
+import { useAuth } from "@/src/context/AuthContext";
 import clsx from "clsx";
 import { Redirect, Tabs } from "expo-router";
 import { Image, View } from "react-native";
