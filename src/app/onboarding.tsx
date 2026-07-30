@@ -1,3 +1,4 @@
+import { SLIDES } from "@/constants/data";
 import "@/global.css";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
@@ -17,30 +18,6 @@ import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 const SafeAreaView = styled(RNSafeAreaView);
 
 export const ONBOARDING_SEEN_KEY = "hasSeenOnboarding";
-
-type Slide = { key: string; icon: string; title: string; subtitle: string };
-
-const SLIDES: Slide[] = [
-  {
-    key: "bills",
-    icon: "💸",
-    title: "Never chase a bill again",
-    subtitle: "See what's owing and who owes it, all in one place.",
-  },
-  {
-    key: "chores",
-    icon: "🧹",
-    title: "Chores that rotate fairly",
-    subtitle:
-      "Automatic rotation means no more arguing about whose turn it is.",
-  },
-  {
-    key: "flat",
-    icon: "🏠",
-    title: "Keep your flat in the loop",
-    subtitle: "One shared home for bills, chores, and what's coming up.",
-  },
-];
 
 const Onboarding = () => {
   const posthog = usePostHog();
@@ -92,10 +69,12 @@ const Onboarding = () => {
         keyExtractor={(slide) => slide.key}
         horizontal
         pagingEnabled
+        snapToInterval={width}
+        decelerationRate="fast"
+        disableIntervalMomentum
         showsHorizontalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={16}
-        style={{ flex: 1 }}
         renderItem={({ item }) => (
           <View
             style={{ width }}
@@ -136,7 +115,7 @@ const Onboarding = () => {
         </Pressable>
       </View>
       <View className="px-6 pb-10">
-        <Pressable className="auth-button" onPress={goToNext}>
+        <Pressable className="auth-secondary-button" onPress={goToNext}>
           <Text className="auth-button-text">Already have an account</Text>
         </Pressable>
       </View>

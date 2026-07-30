@@ -15,6 +15,8 @@ declare global {
   interface ListHeadingProps {
     title: string;
   }
+
+  type Slide = { key: string; icon: string; title: string; subtitle: string };
 }
 
 export { };
