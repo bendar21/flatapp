@@ -198,10 +198,6 @@ const SignUp = () => {
                   <Text className="auth-wordmark-sub">FLAT LIFE, SORTED</Text>
                 </View>
               </View>
-              <Text className="auth-title">Create your account</Text>
-              <Text className="auth-subtitle">
-                Bills, chores, and the food tab — all sorted with your flat
-              </Text>
             </View>
 
             {/* Sign-Up Form */}

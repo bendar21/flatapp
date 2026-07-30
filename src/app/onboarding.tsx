@@ -54,70 +54,64 @@ const Onboarding = () => {
   const isLastSlide = activeIndex === SLIDES.length - 1;
 
   return (
-    <SafeAreaView className="flex-1 bg-background p-5">
-      <View className="flex-row justify-end px-6 pt-2">
-        <Pressable onPress={finishOnboarding} hitSlop={10}>
-          <Text className="text-sm font-sans-medium text-muted-foreground">
-            Skip
-          </Text>
-        </Pressable>
-      </View>
-
-      <FlatList
-        ref={listRef}
-        data={SLIDES}
-        keyExtractor={(slide) => slide.key}
-        horizontal
-        pagingEnabled
-        snapToInterval={width}
-        decelerationRate="fast"
-        disableIntervalMomentum
-        showsHorizontalScrollIndicator={false}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-        renderItem={({ item }) => (
-          <View
-            style={{ width }}
-            className="flex-1 items-center justify-center px-8"
-          >
-            <Text style={{ fontSize: 88 }}>{item.icon}</Text>
-            <Text
-              className="auth-title"
-              style={{ marginTop: 28, textAlign: "center" }}
+    <SafeAreaView className="flex-1 bg-background">
+      <View style={{ flex: 5 }}>
+        <FlatList
+          ref={listRef}
+          data={SLIDES}
+          keyExtractor={(slide) => slide.key}
+          horizontal
+          pagingEnabled
+          snapToInterval={width}
+          decelerationRate="fast"
+          disableIntervalMomentum
+          showsHorizontalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          renderItem={({ item }) => (
+            <View
+              style={{ width }}
+              className="flex-1 items-center justify-center px-8"
             >
-              {item.title}
-            </Text>
-            <Text className="auth-subtitle" style={{ textAlign: "center" }}>
-              {item.subtitle}
-            </Text>
-          </View>
-        )}
-      />
+              <Text style={{ fontSize: 88 }}>{item.icon}</Text>
+              <Text
+                className="auth-title"
+                style={{ marginTop: 28, textAlign: "center" }}
+              >
+                {item.title}
+              </Text>
+              <Text className="auth-subtitle" style={{ textAlign: "center" }}>
+                {item.subtitle}
+              </Text>
+            </View>
+          )}
+        />
 
-      <View className="flex-row justify-center gap-2 mb-6">
-        {SLIDES.map((slide, index) => (
-          <View
-            key={slide.key}
-            className={
-              index === activeIndex
-                ? "w-6 h-2 rounded-full bg-primary"
-                : "w-2 h-2 rounded-full bg-primary/30"
-            }
-          />
-        ))}
-      </View>
+        <View className="flex-row justify-center gap-2 mb-6">
+          {SLIDES.map((slide, index) => (
+            <View
+              key={slide.key}
+              className={
+                index === activeIndex
+                  ? "w-6 h-2 rounded-full bg-primary"
+                  : "w-2 h-2 rounded-full bg-primary/30"
+              }
+            />
+          ))}
+        </View>
 
-      <View className="px-6 pb-2">
-        <Pressable className="auth-button" onPress={goToNext}>
-          <Text className="auth-button-text">
-            {isLastSlide ? "Get started" : "Next"}
-          </Text>
-        </Pressable>
-      </View>
-      <View className="px-6 pb-10">
-        <Pressable className="auth-secondary-button" onPress={goToNext}>
-          <Text className="auth-button-text">Already have an account</Text>
-        </Pressable>
+        <View className="px-6 pb-2">
+          <Pressable className="auth-button" onPress={goToNext}>
+            <Text className="auth-button-text">
+              {isLastSlide ? "Get started" : "Next"}
+            </Text>
+          </Pressable>
+        </View>
+        <View className="px-6 pb-10">
+          <Pressable className="auth-secondary-button" onPress={goToNext}>
+            <Text className="auth-button-text">Already have an account</Text>
+          </Pressable>
+        </View>
       </View>
     </SafeAreaView>
   );

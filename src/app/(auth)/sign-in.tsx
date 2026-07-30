@@ -85,10 +85,6 @@ const SignIn = () => {
                   <Text className="auth-wordmark-sub">FLAT LIFE, SORTED</Text>
                 </View>
               </View>
-              <Text className="auth-title">Welcome back</Text>
-              <Text className="auth-subtitle">
-                Sign in to see whats owing and whose turn it is
-              </Text>
             </View>
 
             {/* Sign-In Form */}
