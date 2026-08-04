@@ -1,12 +1,12 @@
-import BillCard from "@/components/BillCard";
-import CreateBillModal from "@/components/CreateBillModal";
+import UpcomingChoreCard from "@/components/AssignedChoreCard";
+import ChoreCard from "@/components/ChoreCard";
+import CreateChoreModal from "@/components/CreateChoreModal";
 import ListHeading from "@/components/ListHeading";
-import UpcomingBillCard from "@/components/UpcomingBillCard";
 import { HOME_BALANCE } from "@/constants/data";
 import { icons } from "@/constants/icons";
 import images from "@/constants/images";
 import "@/global.css";
-import { useBillStore } from "@/lib/billStore";
+import { useChoreStore } from "@/lib/choreStore";
 import { formatCurrency } from "@/lib/utils";
 import { useUser } from "@/src/context/AuthContext";
 import dayjs from "dayjs";
@@ -21,41 +21,30 @@ export default function App() {
   // ← no "async"
   const { user } = useUser();
   const posthog = usePostHog();
-  const [expandedBillId, setExpandedBillId] = useState<string | null>(null);
+  const [expandedChoreId, setExpandedChoreId] = useState<string | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const { bills, addBill } = useBillStore();
+  const { chores, addChore } = useChoreStore();
 
-  // Get upcoming bills (active bills with renewal date within next 7 days)
-  const upcomingBills = useMemo(() => {
-    const now = dayjs();
-    const nextWeek = now.add(7, "days");
-    return bills
-      .filter(
-        (sub) =>
-          sub.status === "active" &&
-          dayjs(sub.renewalDate).isAfter(now) &&
-          dayjs(sub.renewalDate).isBefore(nextWeek),
-      )
-      .sort((a, b) => dayjs(a.renewalDate).diff(dayjs(b.renewalDate)));
-  }, [bills]);
+  // Get upcoming chores (active chores with renewal date within next 7 days)
+  const assignedChores = useMemo(() => {
+    return chores.filter(
+      (sub) => sub.status === "active" && sub.assignee === user?.firstName,
+    );
+  }, [chores, user?.firstName]);
 
-  const handleBillPress = (item: Bill) => {
-    const isExpanding = expandedBillId !== item.id;
-    setExpandedBillId((currentId) => (currentId === item.id ? null : item.id));
-    posthog.capture(isExpanding ? "bill_expanded" : "bill_collapsed", {
-      bill_name: item.name,
-      bill_id: item.id,
+  const handleChorePress = (item: Chore) => {
+    const isExpanding = expandedChoreId !== item.id;
+    setExpandedChoreId((currentId) => (currentId === item.id ? null : item.id));
+    posthog.capture(isExpanding ? "chore_expanded" : "chore_collapsed", {
+      chore_name: item.name,
+      chore_id: item.id,
     });
   };
 
-  const handleCreateBill = (newBill: Bill) => {
-    addBill(newBill);
-    posthog.capture("bill_created", {
-      bill_name: newBill.name,
-      bill_price: newBill.price,
-      // ensure we don't pass undefined (not assignable to JsonType)
-      bill_frequency: newBill.frequency ?? null,
-      bill_category: newBill.category ?? null,
+  const handleCreateChore = (newChore: Chore) => {
+    addChore(newChore);
+    posthog.capture("chore_created", {
+      chore_name: newChore.name,
     });
   };
 
@@ -101,9 +90,9 @@ export default function App() {
               <ListHeading title="Upcoming" />
 
               <FlatList
-                data={upcomingBills}
+                data={assignedChores}
                 renderItem={({ item }) => (
-                  <UpcomingBillCard daysLeft={0} {...item} />
+                  <UpcomingChoreCard daysLeft={0} {...item} />
                 )}
                 keyExtractor={(item) => item.id}
                 horizontal
@@ -116,31 +105,31 @@ export default function App() {
               />
             </View>
 
-            <ListHeading title="All Bills" />
+            <ListHeading title="All Chores" />
           </>
         )}
-        data={bills}
+        data={chores}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <BillCard
+          <ChoreCard
             {...item}
-            expanded={expandedBillId === item.id}
-            onPress={() => handleBillPress(item)}
+            expanded={expandedChoreId === item.id}
+            onPress={() => handleChorePress(item)}
           />
         )}
-        extraData={expandedBillId}
+        extraData={expandedChoreId}
         ItemSeparatorComponent={() => <View className="h-4" />}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          <Text className="home-empty-state">No bills yet.</Text>
+          <Text className="home-empty-state">No chores yet.</Text>
         }
         contentContainerClassName="pb-30"
       />
 
-      <CreateBillModal
+      <CreateChoreModal
         visible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
-        onSubmit={handleCreateBill}
+        onSubmit={handleCreateChore}
       />
     </SafeAreaView>
   );

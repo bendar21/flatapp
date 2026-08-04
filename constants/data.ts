@@ -127,3 +127,16 @@ export const HOME_BILLS: Bill[] = [
     color: "#b8e8d0",
   },
 ];
+
+export const HOME_CHORES: Chore[] = [
+  {
+    id: "Rent",
+    assignee: "ben",
+    icon: icons.adobe,
+    name: "rent",
+    category: "Recurring",
+    status: "active",
+    doDate: "2025-03-20T10:00:00.000Z",
+    color: "#f5c542",
+  },
+];
