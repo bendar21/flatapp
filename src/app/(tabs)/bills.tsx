@@ -2,38 +2,23 @@ import BillCard from "@/components/BillCard";
 import { useBillStore } from "@/lib/billStore";
 import { styled } from "nativewind";
 import { useState } from "react";
-import { FlatList, Text, TextInput, View } from "react-native";
+import { FlatList, Text, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
 const Bills = () => {
-  const [searchQuery, setSearchQuery] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const { bills } = useBillStore();
-
-  const filteredBills = bills.filter(
-    (bill) =>
-      bill.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      bill.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      bill.plan?.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
 
   return (
     <SafeAreaView className="flex-1 bg-background">
       <FlatList
-        data={filteredBills}
+        data={bills}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={
           <View className="px-5 pt-5">
             <Text className="text-3xl font-bold text-dark mb-5">Bills</Text>
-            <TextInput
-              className="bg-card rounded-xl px-4 py-3 text-dark mb-4"
-              placeholder="Search subscriptions..."
-              placeholderTextColor="#666"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
           </View>
         }
         renderItem={({ item }) => (
