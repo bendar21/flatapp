@@ -4,6 +4,7 @@ export const tabs: AppTab[] = [
   { name: "index", title: "Home", icon: icons.home },
   { name: "bills", title: "Bills", icon: icons.wallet },
   { name: "chores", title: "Chores", icon: icons.activity },
+  { name: "activity", title: "Choressss", icon: icons.activity },
   { name: "settings", title: "Settings", icon: icons.setting },
 ];
 
@@ -128,15 +129,4 @@ export const HOME_BILLS: Bill[] = [
   },
 ];
 
-export const HOME_CHORES: Chore[] = [
-  {
-    id: "Rent",
-    assignee: "ben",
-    icon: icons.adobe,
-    name: "rent",
-    category: "Recurring",
-    status: "active",
-    doDate: "2025-03-20T10:00:00.000Z",
-    color: "#f5c542",
-  },
-];
+export const HOME_CHORES: Chore[] = [];

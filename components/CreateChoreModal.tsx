@@ -1,7 +1,6 @@
 import { icons } from "@/constants/icons";
 import { posthog } from "@/src/config/posthog";
 import clsx from "clsx";
-import dayjs from "dayjs";
 import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -21,27 +20,28 @@ interface CreateChoreModalProps {
 }
 
 type Category =
-  | "Entertainment"
-  | "AI Tools"
-  | "Developer Tools"
-  | "Design"
-  | "Productivity"
+  | "Kitchen"
+  | "Bathroom"
+  | "Bins & recycling"
+  | "Living areas"
+  | "Outdoor"
   | "Other";
 
 const CATEGORIES: Category[] = [
-  "Entertainment",
-  "AI Tools",
-  "Developer Tools",
-  "Design",
-  "Productivity",
+  "Kitchen",
+  "Bathroom",
+  "Bins & recycling",
+  "Living areas",
+  "Outdoor",
   "Other",
 ];
+
 const CATEGORY_COLORS: Record<Category, string> = {
-  Entertainment: "#ff6b6b",
-  "AI Tools": "#b8d4e3",
-  "Developer Tools": "#e8def8",
-  Design: "#f5c542",
-  Productivity: "#95e1d3",
+  Kitchen: "#f5c542",
+  Bathroom: "#b8d4e3",
+  "Bins & recycling": "#95e1d3",
+  "Living areas": "#e8def8",
+  Outdoor: "#a8d8a8",
   Other: "#d4d4d4",
 };
 
@@ -51,33 +51,45 @@ const CreateChoreModal = ({
   onSubmit,
 }: CreateChoreModalProps) => {
   const [name, setName] = useState("");
-  const isValidForm = true;
+  const [category, setCategory] = useState<Category>("Other");
+  const [delegationType, setDelegationType] = useState<
+    "random_weekly" | "fixed_rotation"
+  >("random_weekly");
+  const [membersInput, setMembersInput] = useState("");
+
+  const members = membersInput
+    .split(",")
+    .map((m) => m.trim())
+    .filter(Boolean);
+  const isValidForm = name.trim().length > 0 && members.length > 0;
+
   const handleSubmit = () => {
     if (!isValidForm) return;
 
-    const now = dayjs();
-
     const newChore: Chore = {
-      id: `sub-${Date.now()}`,
+      id: `chore-${Date.now()}`,
       name: name.trim(),
-      status: "active",
-      doDate: now.toISOString(),
-      assignee: "ben",
+      category,
+      color: CATEGORY_COLORS[category],
+      delegationType,
+      members,
       icon: icons.plus,
     };
 
     onSubmit(newChore);
-
     posthog.capture("chore_created", {
       chore_name: name.trim(),
+      delegation_type: delegationType,
     });
-
     resetForm();
     onClose();
   };
 
   const resetForm = () => {
     setName("");
+    setCategory("Other");
+    setDelegationType("random_weekly");
+    setMembersInput("");
   };
 
   const handleClose = () => {
@@ -119,7 +131,7 @@ const CreateChoreModal = ({
                 <Text className="auth-label">Name</Text>
                 <TextInput
                   className="auth-input"
-                  placeholder="Chore name"
+                  placeholder="e.g. Take out bins"
                   placeholderTextColor="rgba(0, 0, 0, 0.4)"
                   value={name}
                   onChangeText={setName}
@@ -127,13 +139,75 @@ const CreateChoreModal = ({
               </View>
 
               <View className="auth-field">
-                <Text className="auth-label">Price</Text>
+                <Text className="auth-label">Category</Text>
+                <View className="flex-row flex-wrap gap-2">
+                  {CATEGORIES.map((c) => (
+                    <Pressable
+                      key={c}
+                      onPress={() => setCategory(c)}
+                      className={clsx(
+                        "rounded-full px-3 py-1.5 border",
+                        category === c
+                          ? "border-primary"
+                          : "border-transparent",
+                      )}
+                      style={{ backgroundColor: CATEGORY_COLORS[c] }}
+                    >
+                      <Text
+                        className="text-xs font-sans-medium"
+                        style={{ color: "#2C2C2A" }}
+                      >
+                        {c}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+
+              <View className="auth-field">
+                <Text className="auth-label">Whos in the rotation?</Text>
                 <TextInput
                   className="auth-input"
-                  placeholder="0.00"
+                  placeholder="Ben, Alex, Sam"
                   placeholderTextColor="rgba(0, 0, 0, 0.4)"
-                  keyboardType="decimal-pad"
+                  value={membersInput}
+                  onChangeText={setMembersInput}
                 />
+                <Text className="mt-1 text-xs font-sans-medium text-muted-foreground">
+                  Comma-separated names for now — placeholder until flat members
+                  come from the flat itself.
+                </Text>
+              </View>
+
+              <View className="auth-field">
+                <Text className="auth-label">How should it rotate?</Text>
+                <View className="flex-row gap-2">
+                  {(["random_weekly", "fixed_rotation"] as const).map(
+                    (type) => (
+                      <Pressable
+                        key={type}
+                        onPress={() => setDelegationType(type)}
+                        className={clsx(
+                          "flex-1 items-center rounded-full py-2 border",
+                          delegationType === type
+                            ? "bg-primary border-primary"
+                            : "border-muted-foreground",
+                        )}
+                      >
+                        <Text
+                          className="text-xs font-sans-medium"
+                          style={{
+                            color: delegationType === type ? "#fff" : undefined,
+                          }}
+                        >
+                          {type === "random_weekly"
+                            ? "Random weekly"
+                            : "Fixed rotation"}
+                        </Text>
+                      </Pressable>
+                    ),
+                  )}
+                </View>
               </View>
 
               <Pressable

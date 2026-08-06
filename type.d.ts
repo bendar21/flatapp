@@ -52,28 +52,36 @@ declare global {
     icon: ImageSourcePropType;
     name: string;
     category?: string;
-    status?: string;
-    doDate?: string;
-    assignee: string;
     color?: string;
+    delegationType: "random_weekly" | "fixed_rotation";
+    members: string[]; // flatmates eligible for this chore's rotation
   }
 
-  interface ChoreCardProps extends Omit<Bill, "id"> {
+  interface ChoreAssignment {
+    id: string;
+    choreId: string;
+    weekStart: string; // ISO date, always a Monday — "2026-08-03"
+    assignee: string;
+    completed: boolean;
+    completedAt?: string;
+  }
+
+  interface ChoreCardProps extends Omit<Chore, "id"> {
     expanded: boolean;
     onPress: () => void;
+    currentAssignee?: string;
+    completed?: boolean;
     onCancelPress?: () => void;
     isCancelling?: boolean;
   }
 
-  interface AssignedChore {
-    id: string;
+  interface AssignedChoreCardProps {
+    choreName: string;
     icon: ImageSourcePropType;
-    name: string;
     daysLeft: number;
-    status: string;
+    completed: boolean;
+    onComplete: () => void;
   }
-
-  interface AssignedChoreCardProps extends Omit<AssignedChore, "id"> {}
 
   interface ListHeadingProps {
     title: string;

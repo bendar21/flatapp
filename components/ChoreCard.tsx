@@ -1,126 +1,57 @@
-import {
-    formatCurrency,
-    formatStatusLabel,
-    formatSubscriptionDateTime,
-} from "@/lib/utils";
-import clsx from "clsx";
 import React from "react";
 import { Image, Pressable, Text, View } from "react-native";
 
 const ChoreCard = ({
   name,
-  price,
-  currency,
   icon,
-  billing,
-  color,
   category,
-  plan,
-  renewalDate,
+  color,
+  delegationType,
+  currentAssignee,
+  completed,
   expanded,
   onPress,
-  paymentMethod,
-  startDate,
-  status,
 }: ChoreCardProps) => {
   return (
     <Pressable
       onPress={onPress}
-      className={clsx("sub-card", expanded ? "sub-card-expanded" : "bg-card")}
-      style={!expanded && color ? { backgroundColor: color } : undefined}
+      className="flex-row items-center justify-between rounded-xl bg-background p-4"
+      style={{ borderLeftWidth: 4, borderLeftColor: color ?? "#888780" }}
     >
-      <View className="sub-head">
-        <View className="sub-main">
-          <Image source={icon} className="sub-icon" />
-          <View className="sub-copy">
-            <Text numberOfLines={1} className="sub-title">
-              {name}
+      <View className="flex-row items-center gap-3">
+        <Image source={icon} style={{ width: 28, height: 28 }} />
+        <View>
+          <Text className="font-sans-bold text-primary">{name}</Text>
+          {category && (
+            <Text className="text-xs font-sans-medium text-muted-foreground">
+              {category}
             </Text>
-            <Text numberOfLines={1} ellipsizeMode="tail" className="sub-meta">
-              {category?.trim() ||
-                plan?.trim() ||
-                (renewalDate ? formatSubscriptionDateTime(renewalDate) : "")}
-            </Text>
-          </View>
-        </View>
-
-        <View className="sub-price-box">
-          <Text className="sub-price">{formatCurrency(price, currency)}</Text>
-          <Text className="sub-billing">{billing}</Text>
+          )}
         </View>
       </View>
 
-      {expanded && (
-        <View className="sub-bdy">
-          <View className="sub-details">
-            <View className="sub-row">
-              <View className="sub-row-copy">
-                <Text className="sub-label">Payment:</Text>
-                <Text
-                  className="sub-value"
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {paymentMethod?.trim() ?? "Not provided"}
-                </Text>
-              </View>
-            </View>
-            <View className="sub-row">
-              <View className="sub-row-copy">
-                <Text className="sub-label">Category:</Text>
-                <Text
-                  className="sub-value"
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {(category?.trim() || plan?.trim()) ?? "Not provided"}
-                </Text>
-              </View>
-            </View>
-            <View className="sub-row">
-              <View className="sub-row-copy">
-                <Text className="sub-label">Started:</Text>
-                <Text
-                  className="sub-value"
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {startDate
-                    ? formatSubscriptionDateTime(startDate)
-                    : "Not provided"}
-                </Text>
-              </View>
-            </View>
-            <View className="sub-row">
-              <View className="sub-row-copy">
-                <Text className="sub-label">Renewal date:</Text>
-                <Text
-                  className="sub-value"
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {renewalDate
-                    ? formatSubscriptionDateTime(renewalDate)
-                    : "Not provided"}
-                </Text>
-              </View>
-            </View>
-            <View className="sub-row">
-              <View className="sub-row-copy">
-                <Text className="sub-label">Status:</Text>
-                <Text
-                  className="sub-value"
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {status ? formatStatusLabel(status) : "Not provided"}
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
-      )}
+      <View className="items-end">
+        <Text className="text-xs font-sans-medium text-muted-foreground">
+          {currentAssignee ?? "Unassigned"}
+        </Text>
+        {completed && (
+          <Text
+            className="text-xs font-sans-medium"
+            style={{ color: "#0F6E56" }}
+          >
+            Done ✓
+          </Text>
+        )}
+        {expanded && (
+          <Text className="mt-1 text-xs font-sans-medium text-muted-foreground">
+            {delegationType === "random_weekly"
+              ? "Random weekly"
+              : "Fixed rotation"}
+          </Text>
+        )}
+      </View>
     </Pressable>
   );
 };
+
 export default ChoreCard;
