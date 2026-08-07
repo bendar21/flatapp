@@ -1,154 +1,160 @@
-
-import BillCard from "@/components/BillCard";
+import ChoreRow from "@/components/ChoreRow";
 import CreateBillModal from "@/components/CreateBillModal";
+import CreateChoreModal from "@/components/CreateChoreModal";
 import ListHeading from "@/components/ListHeading";
 import UpcomingBillCard from "@/components/UpcomingBillCard";
-import { HOME_BALANCE } from "@/constants/data";
 import { icons } from "@/constants/icons";
 import images from "@/constants/images";
 import "@/global.css";
 import { useBillStore } from "@/lib/billStore";
-import { formatCurrency } from "@/lib/utils";
-import { supabase } from "@/src/config/supabase";
+import { currentWeekStart } from "@/lib/choreAssignments";
+import { useChoreStore } from "@/lib/choreStore";
+import { useUser } from "@/src/context/AuthContext";
 import dayjs from "dayjs";
 import { styled } from "nativewind";
-import { usePostHog } from 'posthog-react-native';
-import React, { useMemo, useState } from "react";
-import { FlatList, Image, Pressable, Text, View } from "react-native";
+import { usePostHog } from "posthog-react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+    FlatList,
+    Image,
+    ScrollView,
+    Text,
+    View
+} from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 const SafeAreaView = styled(RNSafeAreaView);
 
-export default async function App() {
-    const { data: { user } } = await supabase.auth.getUser()
-    const posthog = usePostHog();
-    const [expandedBillId, setExpandedBillId] = useState<string | null>(null);
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const { bills, addBill } = useBillStore();
+export default function Home() {
+  const { user } = useUser();
+  const posthog = usePostHog();
+  const { bills, addBill } = useBillStore();
+  const {
+    chores,
+    assignments,
+    addChore,
+    completeAssignment,
+    generateThisWeek,
+  } = useChoreStore();
 
-    // Get upcoming bills (active bills with renewal date within next 7 days)
-    const upcomingBills = useMemo(() => {
-        const now = dayjs();
-        const nextWeek = now.add(7, 'days');
-        return bills.filter(sub =>
-            sub.status === 'active' &&
-            dayjs(sub.renewalDate).isAfter(now) &&
-            dayjs(sub.renewalDate).isBefore(nextWeek)
-        ).sort((a, b) => dayjs(a.renewalDate).diff(dayjs(b.renewalDate)));
-    }, [bills]);
+  const [isBillModalVisible, setIsBillModalVisible] = useState(false);
+  const [isChoreModalVisible, setIsChoreModalVisible] = useState(false);
 
-    const handleBillPress = (item: Bill) => {
-        const isExpanding = expandedBillId !== item.id;
-        setExpandedBillId((currentId) => (currentId === item.id ? null : item.id));
-        posthog.capture(isExpanding ? 'bill_expanded' : 'bill_collapsed', {
-            bill_name: item.name,
-            bill_id: item.id,
-        });
-    };
+  useEffect(() => {
+    generateThisWeek();
+  }, [generateThisWeek]);
 
-    const handleCreateBill = (newBill: Bill) => {
-        addBill(newBill);
-        posthog.capture('bill_created', {
-            bill_name: newBill.name,
-            bill_price: newBill.price,
-            // ensure we don't pass undefined (not assignable to JsonType)
-            bill_frequency: newBill.frequency ?? null,
-            bill_category: newBill.category ?? null,
-        });
-    };
+  const weekStart = currentWeekStart();
 
-    // Get user display name from possible Supabase user fields: user_metadata or email
-    const displayName =
-        user?.user_metadata?.firstName ||
-        user?.user_metadata?.first_name ||
-        user?.user_metadata?.fullName ||
-        user?.user_metadata?.full_name ||
-        user?.email ||
-        'User';
+  const upcomingBills = useMemo(() => {
+    const now = dayjs();
+    const nextWeek = now.add(7, "days");
+    return bills
+      .filter(
+        (b) =>
+          b.status === "active" &&
+          dayjs(b.renewalDate).isAfter(now) &&
+          dayjs(b.renewalDate).isBefore(nextWeek),
+      )
+      .sort((a, b) => dayjs(a.renewalDate).diff(dayjs(b.renewalDate)));
+  }, [bills]);
 
-    // Resolve avatar URL from possible user metadata fields
-    const avatarUrl =
-        // common camelCase or snake_case keys used in various auth providers
-        (user as any)?.user_metadata?.imageUrl ||
-        (user as any)?.user_metadata?.image_url ||
-        (user as any)?.user_metadata?.avatar ||
-        (user as any)?.user_metadata?.avatar_url ||
-        (user as any)?.user_metadata?.picture ||
-        (user as any)?.user_metadata?.photoUrl ||
-        (user as any)?.user_metadata?.photo_url ||
-        // fallback to top-level possible fields
-        (user as any)?.photoURL ||
-        (user as any)?.avatar_url ||
-        null;
+  // This week's chores for the whole flat, joined against their chore
+  // definition for name/icon — see the note below about this join.
+  const thisWeeksChores = useMemo(() => {
+    return assignments
+      .filter((a) => a.weekStart === weekStart)
+      .map((a) => {
+        const chore = chores.find((c) => c.id === a.choreId);
+        return {
+          assignment: a,
+          name: chore?.name ?? "Chore",
+          icon: chore?.icon ?? icons.add,
+        };
+      });
+  }, [assignments, chores, weekStart]);
 
-    return (
-        <SafeAreaView className="flex-1 bg-background p-5">
-                <FlatList
-                    ListHeaderComponent={() => (
-                        <>
-                            <View className="home-header">
-                                <View className="home-user">
-                                    <Image
-                                        source={avatarUrl ? { uri: avatarUrl } : images.avatar}
-                                        className="home-avatar"
-                                    />
-                                    <Text className="home-user-name">{displayName}</Text>
-                                </View>
+  const handleCreateBill = (newBill: Bill) => {
+    addBill(newBill);
+    posthog.capture("bill_created", {
+      bill_name: newBill.name,
+      bill_price: newBill.price,
+    });
+  };
 
-                                <Pressable onPress={() => setIsModalVisible(true)}>
-                                    <Image source={icons.add} className="home-add-icon" />
-                                </Pressable>
-                            </View>
+  const handleCreateChore = (newChore: Chore) => {
+    addChore(newChore);
+    posthog.capture("chore_created", { chore_name: newChore.name });
+  };
 
-                            <View className="home-balance-card">
-                                <Text className="home-balance-label">Balance</Text>
+  const displayName = user?.fullName || "User";
+  const avatarUrl = user?.imageUrl;
 
-                                <View className="home-balance-row">
-                                    <Text className="home-balance-amount">
-                                        {formatCurrency(HOME_BALANCE.amount)}
-                                    </Text>
-                                    <Text className="home-balance-date">
-                                        {dayjs(HOME_BALANCE.nextRenewalDate).format('MM/DD')}
-                                    </Text>
-                                </View>
-                            </View>
-
-                            <View className="mb-5">
-                                <ListHeading title="Upcoming" />
-
-                                <FlatList
-                                    data={upcomingBills}
-                                    renderItem={({ item }) => (<UpcomingBillCard daysLeft={0} {...item} />)}
-                                    keyExtractor={(item) => item.id}
-                                    horizontal
-                                    showsHorizontalScrollIndicator={false}
-                                    ListEmptyComponent={<Text className="home-empty-state">No upcoming renewals yet.</Text>}
-                                />
-                            </View>
-
-                            <ListHeading title="All Bills" />
-                        </>
-                    )}
-                    data={bills}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => (
-                        <BillCard
-                            {...item}
-                            expanded={expandedBillId === item.id}
-                            onPress={() => handleBillPress(item)}
-                        />
-                    )}
-                    extraData={expandedBillId}
-                    ItemSeparatorComponent={() => <View className="h-4" />}
-                    showsVerticalScrollIndicator={false}
-                    ListEmptyComponent={<Text className="home-empty-state">No bills yet.</Text>}
-                    contentContainerClassName="pb-30"
-                />
-
-            <CreateBillModal
-                visible={isModalVisible}
-                onClose={() => setIsModalVisible(false)}
-                onSubmit={handleCreateBill}
+  return (
+    <SafeAreaView className="flex-1 bg-background p-5">
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 40 }}
+      >
+        <View className="home-header">
+          <View className="home-user">
+            <Image
+              source={avatarUrl ? { uri: avatarUrl } : images.avatar}
+              className="home-avatar"
             />
-        </SafeAreaView>
-    );
+            <Text className="home-user-name">{displayName}</Text>
+          </View>
+
+          <View className="flex-row gap-3"></View>
+        </View>
+
+        <View className="mb-6 mt-4">
+          <ListHeading title="Upcoming bills" />
+          <FlatList
+            data={upcomingBills}
+            renderItem={({ item }) => (
+              <UpcomingBillCard daysLeft={0} {...item} />
+            )}
+            keyExtractor={(item) => item.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            ListEmptyComponent={
+              <Text className="home-empty-state">
+                Nothing due in the next week.
+              </Text>
+            }
+          />
+        </View>
+
+        <View>
+          <ListHeading title="This week's chores" />
+          <View style={{ gap: 8 }}>
+            {thisWeeksChores.length === 0 && (
+              <Text className="home-empty-state">No chores set up yet.</Text>
+            )}
+            {thisWeeksChores.map(({ assignment, name, icon }) => (
+              <ChoreRow
+                key={assignment.id}
+                name={name}
+                icon={icon}
+                assignee={assignment.assignee}
+                completed={assignment.completed}
+                onComplete={() => completeAssignment(assignment.id)}
+              />
+            ))}
+          </View>
+        </View>
+      </ScrollView>
+
+      <CreateBillModal
+        visible={isBillModalVisible}
+        onClose={() => setIsBillModalVisible(false)}
+        onSubmit={handleCreateBill}
+      />
+      <CreateChoreModal
+        visible={isChoreModalVisible}
+        onClose={() => setIsChoreModalVisible(false)}
+        onSubmit={handleCreateChore}
+      />
+    </SafeAreaView>
+  );
 }

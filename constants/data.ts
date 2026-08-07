@@ -4,7 +4,6 @@ export const tabs: AppTab[] = [
   { name: "index", title: "Home", icon: icons.home },
   { name: "bills", title: "Bills", icon: icons.wallet },
   { name: "chores", title: "Chores", icon: icons.activity },
-  { name: "activity", title: "Choressss", icon: icons.activity },
   { name: "settings", title: "Settings", icon: icons.setting },
 ];
 

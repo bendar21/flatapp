@@ -1,9 +1,6 @@
-import UpcomingChoreCard from "@/components/AssignedChoreCard";
 import ChoreCard from "@/components/ChoreCard";
 import CreateChoreModal from "@/components/CreateChoreModal";
-import ListHeading from "@/components/ListHeading";
 import { icons } from "@/constants/icons";
-import images from "@/constants/images";
 import "@/global.css";
 import { currentWeekStart } from "@/lib/choreAssignments";
 import { useChoreStore } from "@/lib/choreStore";
@@ -73,79 +70,40 @@ export default function App() {
     posthog.capture("chore_created", { chore_name: newChore.name });
   };
 
-  const displayName = user?.fullName || "User";
-  const avatarUrl = user?.imageUrl;
-
   return (
     <SafeAreaView className="flex-1 bg-background p-5">
       <FlatList
-        ListHeaderComponent={() => (
-          <>
-            <View className="home-header">
-              <View className="home-user">
-                <Image
-                  source={avatarUrl ? { uri: avatarUrl } : images.avatar}
-                  className="home-avatar"
-                />
-                <Text className="home-user-name">{displayName}</Text>
-              </View>
-
+        data={chores}
+        keyExtractor={(item) => item.id}
+        ListHeaderComponent={
+          <View className="px-5 pt-5">
+            <View className="flex-row items-center justify-between mb-5">
+              <Text className="text-3xl font-sans-bold text-primary">
+                Chores
+              </Text>
               <Pressable onPress={() => setIsModalVisible(true)}>
                 <Image source={icons.add} className="home-add-icon" />
               </Pressable>
             </View>
-
-            <View className="mb-5">
-              <ListHeading title="Your chores this week" />
-
-              <FlatList
-                data={myOpenAssignments}
-                renderItem={({ item }) => (
-                  <UpcomingChoreCard
-                    choreName={item.choreName}
-                    icon={item.icon}
-                    daysLeft={item.daysLeft}
-                    completed={false}
-                    onComplete={() => completeAssignment(item.assignment.id)}
-                  />
-                )}
-                keyExtractor={(item) => item.assignment.id}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                ListEmptyComponent={
-                  <Text className="home-empty-state">
-                    Nothing on your plate this week 🎉
-                  </Text>
-                }
-              />
-            </View>
-
-            <ListHeading title="All Chores" />
-          </>
-        )}
-        data={chores}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => {
-          const thisWeek = assignments.find(
-            (a) => a.choreId === item.id && a.weekStart === weekStart,
-          );
-          return (
-            <ChoreCard
-              {...item}
-              currentAssignee={thisWeek?.assignee}
-              completed={thisWeek?.completed ?? false}
-              expanded={expandedChoreId === item.id}
-              onPress={() => handleChorePress(item)}
-            />
-          );
-        }}
-        extraData={{ expandedChoreId, assignments }}
-        ItemSeparatorComponent={() => <View className="h-4" />}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <Text className="home-empty-state">No chores yet.</Text>
+          </View>
         }
-        contentContainerClassName="pb-30"
+        renderItem={({ item }) => (
+          <ChoreCard
+            {...item}
+            expanded={expandedChoreId === item.id}
+            onPress={() =>
+              setExpandedChoreId(expandedChoreId === item.id ? null : item.id)
+            }
+          />
+        )}
+        contentContainerStyle={{
+          paddingHorizontal: 20,
+          paddingBottom: 20,
+          gap: 12,
+        }}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       />
 
       <CreateChoreModal
