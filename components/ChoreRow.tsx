@@ -1,19 +1,4 @@
-import React from "react";
-import {
-    Image,
-    ImageSourcePropType,
-    Pressable,
-    Text,
-    View,
-} from "react-native";
-
-interface ChoreRowProps {
-  name: string;
-  icon: ImageSourcePropType;
-  assignee: string;
-  completed: boolean;
-  onComplete: () => void;
-}
+import { Image, Pressable, Text, View } from "react-native";
 
 const ChoreRow = ({
   name,
@@ -23,31 +8,38 @@ const ChoreRow = ({
   onComplete,
 }: ChoreRowProps) => {
   return (
-    <View className="flex-row items-center justify-between rounded-xl bg-background p-3">
-      <View className="flex-row items-center gap-3">
-        <Image source={icon} style={{ width: 24, height: 24 }} />
-        <View>
-          <Text className="font-sans-bold text-primary">{name}</Text>
-          <Text className="text-xs font-sans-medium text-muted-foreground">
-            {assignee}
-          </Text>
+    <View className="sub-card">
+      <View className="sub-head">
+        <View className="sub-main">
+          <Image source={icon} className="sub-icon" />
+          <View className="sub-copy">
+            <Text className="sub-title" numberOfLines={1}>
+              {name}
+            </Text>
+            <Text className="sub-meta" numberOfLines={1}>
+              {assignee}
+            </Text>
+          </View>
+        </View>
+
+        <View className="sub-price-box">
+          {completed ? (
+            <Text className="sub-billing">Done</Text>
+          ) : (
+            <Pressable
+              onPress={onComplete}
+              className="rounded-full bg-primary px-3 py-1.5"
+            >
+              <Text
+                className="text-xs font-sans-bold"
+                style={{ color: "#fff" }}
+              >
+                Tick off
+              </Text>
+            </Pressable>
+          )}
         </View>
       </View>
-
-      {completed ? (
-        <Text className="text-xs font-sans-medium" style={{ color: "#0F6E56" }}>
-          Done ✓
-        </Text>
-      ) : (
-        <Pressable
-          onPress={onComplete}
-          className="rounded-full bg-primary px-3 py-1.5"
-        >
-          <Text className="text-xs font-sans-medium" style={{ color: "#fff" }}>
-            Complete
-          </Text>
-        </Pressable>
-      )}
     </View>
   );
 };

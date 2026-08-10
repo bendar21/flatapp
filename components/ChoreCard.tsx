@@ -4,6 +4,7 @@ import { Image, Pressable, Text, View } from "react-native";
 const ChoreCard = ({
   name,
   icon,
+  color,
   category,
   delegationType,
   currentAssignee,
@@ -16,7 +17,8 @@ const ChoreCard = ({
   return (
     <Pressable
       onPress={onPress}
-      className={clsx("sub-card", expanded && "sub-card-expanded")}
+      className={clsx("sub-card", expanded ? "sub-card-expanded" : "bg-card")}
+      style={!expanded && color ? { backgroundColor: color } : undefined}
     >
       <View className="sub-head">
         <View className="sub-main">

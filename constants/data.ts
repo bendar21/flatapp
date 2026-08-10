@@ -128,4 +128,23 @@ export const HOME_BILLS: Bill[] = [
   },
 ];
 
-export const HOME_CHORES: Chore[] = [];
+export const HOME_CHORES: Chore[] = [
+  {
+    id: "chore1",
+    icon: icons.canva,
+    name: "clean toilet",
+    category: "bathroom",
+    color: "#b8e8d0",
+    delegationType: "fixed_rotation",
+    members: ["ben", " joe"],
+  },
+  {
+    id: "chore2",
+    icon: icons.canva,
+    name: "clean toilet",
+    category: "bathroom",
+    color: "#b8e8d0",
+    delegationType: "fixed_rotation",
+    members: ["ben", " joe"],
+  },
+];

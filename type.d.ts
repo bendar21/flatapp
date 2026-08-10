@@ -83,6 +83,14 @@ declare global {
     onComplete: () => void;
   }
 
+  interface ChoreRowProps {
+    name: string;
+    icon: ImageSourcePropType;
+    assignee: string;
+    completed: boolean;
+    onComplete: () => void;
+  }
+
   interface ListHeadingProps {
     title: string;
   }

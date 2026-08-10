@@ -14,13 +14,7 @@ import dayjs from "dayjs";
 import { styled } from "nativewind";
 import { usePostHog } from "posthog-react-native";
 import React, { useEffect, useMemo, useState } from "react";
-import {
-    FlatList,
-    Image,
-    ScrollView,
-    Text,
-    View
-} from "react-native";
+import { FlatList, Image, ScrollView, Text, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 const SafeAreaView = styled(RNSafeAreaView);
 

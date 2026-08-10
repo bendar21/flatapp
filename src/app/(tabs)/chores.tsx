@@ -71,7 +71,7 @@ export default function App() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background p-5">
+    <SafeAreaView className="flex-1 bg-background">
       <FlatList
         data={chores}
         keyExtractor={(item) => item.id}
