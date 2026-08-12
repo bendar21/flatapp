@@ -3,7 +3,7 @@ import { icons } from "./icons";
 export const tabs: AppTab[] = [
   { name: "index", title: "Home", icon: icons.home },
   { name: "bills", title: "Bills", icon: icons.wallet },
-  { name: "chores", title: "Chores", icon: icons.activity },
+  { name: "chores", title: "Chores", icon: icons.chores },
   { name: "settings", title: "Settings", icon: icons.setting },
 ];
 
@@ -40,50 +40,34 @@ export const SLIDES: Slide[] = [
 
 export const UPCOMING_BILLS: UpcomingBill[] = [
   {
-    id: "spotify",
-    icon: icons.spotify,
-    name: "Spotify",
-    price: 5.99,
-    currency: "USD",
+    id: "rent",
+    icon: icons.rent,
+    name: "Rent",
+    price: 160,
+    currency: "NZD",
     daysLeft: 2,
-  },
-  {
-    id: "notion",
-    icon: icons.notion,
-    name: "Notion",
-    price: 12.0,
-    currency: "USD",
-    daysLeft: 4,
-  },
-  {
-    id: "figma",
-    icon: icons.figma,
-    name: "Figma",
-    price: 15.0,
-    currency: "USD",
-    daysLeft: 6,
   },
 ];
 
 export const HOME_BILLS: Bill[] = [
   {
     id: "Rent",
-    icon: icons.adobe,
-    name: "rent",
+    icon: icons.rent,
+    name: "Rent",
     plan: "",
     category: "Recurring",
     paymentMethod: "acc no",
     status: "active",
     startDate: "2025-03-20T10:00:00.000Z",
-    price: 77.49,
-    currency: "USD",
+    price: 160,
+    currency: "NZD",
     billing: "Weekly",
     renewalDate: "2026-03-20T10:00:00.000Z",
     color: "#f5c542",
   },
   {
     id: "Power",
-    icon: icons.github,
+    icon: icons.power,
     name: "Power",
     plan: "Power",
     category: "Developer Tools",
@@ -98,7 +82,7 @@ export const HOME_BILLS: Bill[] = [
   },
   {
     id: "Wifi",
-    icon: icons.claude,
+    icon: icons.wifi,
     name: "Wifi",
     plan: "Pro Plan",
     category: "AI Tools",
@@ -113,7 +97,7 @@ export const HOME_BILLS: Bill[] = [
   },
   {
     id: "netflix",
-    icon: icons.canva,
+    icon: icons.netflix,
     name: "flat netflix",
     plan: "Yearly Access",
     category: "Design",
@@ -131,7 +115,7 @@ export const HOME_BILLS: Bill[] = [
 export const HOME_CHORES: Chore[] = [
   {
     id: "chore1",
-    icon: icons.canva,
+    icon: icons.bathroom,
     name: "clean toilet",
     category: "bathroom",
     color: "#b8e8d0",
@@ -140,7 +124,7 @@ export const HOME_CHORES: Chore[] = [
   },
   {
     id: "chore2",
-    icon: icons.canva,
+    icon: icons.bathroom,
     name: "clean toilet",
     category: "bathroom",
     color: "#b8e8d0",
