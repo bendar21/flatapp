@@ -1,6 +1,7 @@
 import "@/global.css";
 import { posthog } from "@/src/config/posthog";
 import { AuthProvider, useAuth } from "@/src/context/AuthContext";
+import { FlatProvider } from "@/src/context/FlatContext";
 import { useFonts } from "expo-font";
 import {
   SplashScreen,
@@ -75,7 +76,9 @@ export default function RootLayout() {
       }}
     >
       <AuthProvider>
-        <RootLayoutContent />
+        <FlatProvider>
+          <RootLayoutContent />
+        </FlatProvider>
       </AuthProvider>
     </PostHogProvider>
   );

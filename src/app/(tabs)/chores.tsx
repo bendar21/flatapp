@@ -18,13 +18,7 @@ export default function App() {
   const posthog = usePostHog();
   const [expandedChoreId, setExpandedChoreId] = useState<string | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const {
-    chores,
-    assignments,
-    addChore,
-    completeAssignment,
-    generateThisWeek,
-  } = useChoreStore();
+  const { chores, assignments, addChore, generateThisWeek } = useChoreStore();
 
   // Make sure this week's assignments exist before we try to read them.
   // Safe to call every mount — chores that already have this week's

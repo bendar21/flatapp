@@ -1,6 +1,4 @@
 import ChoreRow from "@/components/ChoreRow";
-import CreateBillModal from "@/components/CreateBillModal";
-import CreateChoreModal from "@/components/CreateChoreModal";
 import ListHeading from "@/components/ListHeading";
 import UpcomingBillCard from "@/components/UpcomingBillCard";
 import { icons } from "@/constants/icons";
@@ -13,7 +11,7 @@ import { useUser } from "@/src/context/AuthContext";
 import dayjs from "dayjs";
 import { styled } from "nativewind";
 import { usePostHog } from "posthog-react-native";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { FlatList, Image, ScrollView, Text, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 const SafeAreaView = styled(RNSafeAreaView);
@@ -21,17 +19,9 @@ const SafeAreaView = styled(RNSafeAreaView);
 export default function Home() {
   const { user } = useUser();
   const posthog = usePostHog();
-  const { bills, addBill } = useBillStore();
-  const {
-    chores,
-    assignments,
-    addChore,
-    completeAssignment,
-    generateThisWeek,
-  } = useChoreStore();
-
-  const [isBillModalVisible, setIsBillModalVisible] = useState(false);
-  const [isChoreModalVisible, setIsChoreModalVisible] = useState(false);
+  const { bills } = useBillStore();
+  const { chores, assignments, completeAssignment, generateThisWeek } =
+    useChoreStore();
 
   useEffect(() => {
     generateThisWeek();
@@ -66,19 +56,6 @@ export default function Home() {
         };
       });
   }, [assignments, chores, weekStart]);
-
-  const handleCreateBill = (newBill: Bill) => {
-    addBill(newBill);
-    posthog.capture("bill_created", {
-      bill_name: newBill.name,
-      bill_price: newBill.price,
-    });
-  };
-
-  const handleCreateChore = (newChore: Chore) => {
-    addChore(newChore);
-    posthog.capture("chore_created", { chore_name: newChore.name });
-  };
 
   const displayName = user?.fullName || "User";
   const avatarUrl = user?.imageUrl;
@@ -138,17 +115,6 @@ export default function Home() {
           </View>
         </View>
       </ScrollView>
-
-      <CreateBillModal
-        visible={isBillModalVisible}
-        onClose={() => setIsBillModalVisible(false)}
-        onSubmit={handleCreateBill}
-      />
-      <CreateChoreModal
-        visible={isChoreModalVisible}
-        onClose={() => setIsChoreModalVisible(false)}
-        onSubmit={handleCreateChore}
-      />
     </SafeAreaView>
   );
 }
