@@ -48,7 +48,7 @@ const SignUp = () => {
 
     setIsSubmitting(true);
     setFormError(null);
-    const { error } = await signUp(emailAddress, password);
+    const { error } = await signUp(emailAddress, password, name);
     setIsSubmitting(false);
 
     if (error) {

@@ -45,7 +45,7 @@ declare global {
     daysLeft: number;
   }
 
-  interface UpcomingBillCardProps extends Omit<UpcomingBill, "id"> {}
+  type UpcomingBillCardProps = Omit<UpcomingBill, "id">;
 
   interface Chore {
     id: string;

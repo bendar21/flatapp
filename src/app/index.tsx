@@ -29,7 +29,7 @@ const Index = () => {
     return <Redirect href="/onboarding" />;
   }
 
-  return <Redirect href="/(auth)/sign-in" />;
+  return <Redirect href="/onboarding" />;
 };
 
 export default Index;

@@ -1,18 +1,18 @@
 import "@/global.css";
 import { useAuth } from "@/src/context/AuthContext";
 import { useFlat } from "@/src/context/FlatContext";
-import clsx from "clsx";
+import { clsx } from "clsx";
 import { router } from "expo-router";
 import { styled } from "nativewind";
 import { useState } from "react";
 import {
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    ScrollView,
-    Text,
-    TextInput,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 

@@ -1,12 +1,12 @@
 import { supabase } from "@/src/config/supabase";
+import { useAuth } from "@/src/context/AuthContext";
 import React, {
-    createContext,
-    useCallback,
-    useContext,
-    useEffect,
-    useState,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
-import { useAuth } from "./AuthContext";
 
 type Flat = {
   id: string;
