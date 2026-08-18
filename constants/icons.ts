@@ -3,6 +3,7 @@ import add from "@/assets/icons/add.png";
 import back from "@/assets/icons/back.png";
 import bathroom from "@/assets/icons/bathroom.png";
 import home from "@/assets/icons/home.png";
+import chores from "@/assets/icons/list.png";
 import medium from "@/assets/icons/medium.png";
 import menu from "@/assets/icons/menu.png";
 import netflix from "@/assets/icons/netflix.png";
@@ -12,7 +13,6 @@ import power from "@/assets/icons/power.png";
 import rent from "@/assets/icons/rent.png";
 import setting from "@/assets/icons/setting.png";
 import spotify from "@/assets/icons/spotify.png";
-import chores from "@/assets/icons/todo.png";
 import wallet from "@/assets/icons/wallet.png";
 import wifi from "@/assets/icons/wifi.png";
 
