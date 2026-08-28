@@ -1,151 +1,128 @@
-import CreateSubscriptionModal from "@/components/CreateSubscriptionModal";
+import ChoreRow from "@/components/ChoreRow";
 import ListHeading from "@/components/ListHeading";
-import SubscriptionCard from "@/components/SubscriptionCard";
-import UpcomingSubscriptionCard from "@/components/UpcomingSubscriptionCard";
+import UpcomingBillCard from "@/components/UpcomingBillCard";
 import { icons } from "@/constants/icons";
 import images from "@/constants/images";
 import "@/global.css";
-import { useSubscriptionStore } from "@/lib/subscriptionStore";
+import { useBillStore } from "@/lib/billStore";
+import { currentWeekStart } from "@/lib/choreAssignments";
+import { useChoreStore } from "@/lib/choreStore";
 import { useUser } from "@/src/context/AuthContext";
 import dayjs from "dayjs";
 import { styled } from "nativewind";
 import { usePostHog } from "posthog-react-native";
-import { useMemo, useState } from "react";
-import { FlatList, Image, Pressable, Text, View } from "react-native";
+import React, { useEffect, useMemo } from "react";
+import { FlatList, Image, ScrollView, Text, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 const SafeAreaView = styled(RNSafeAreaView);
 
-export default function App() {
+export default function Home() {
   const { user } = useUser();
   const posthog = usePostHog();
-  const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<
-    string | null
-  >(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const { subscriptions, addSubscription } = useSubscriptionStore();
+  const { bills } = useBillStore();
+  const { chores, assignments, completeAssignment, generateThisWeek } =
+    useChoreStore();
 
-  // Get upcoming subscriptions (active subscriptions with renewal date within next 7 days)
-  const upcomingSubscriptions = useMemo(() => {
+  useEffect(() => {
+    generateThisWeek();
+  }, [generateThisWeek]);
+
+  const weekStart = currentWeekStart();
+
+  const upcomingBills = useMemo(() => {
     const now = dayjs();
     const nextWeek = now.add(7, "days");
-    return subscriptions
+    return bills
       .filter(
-        (sub) =>
-          sub.status === "active" &&
-          dayjs(sub.renewalDate).isAfter(now) &&
-          dayjs(sub.renewalDate).isBefore(nextWeek),
+        (b) =>
+          b.status === "active" &&
+          dayjs(b.renewalDate).isAfter(now) &&
+          dayjs(b.renewalDate).isBefore(nextWeek),
       )
       .sort((a, b) => dayjs(a.renewalDate).diff(dayjs(b.renewalDate)));
-  }, [subscriptions]);
+  }, [bills]);
 
-  const handleSubscriptionPress = (item: Subscription) => {
-    const isExpanding = expandedSubscriptionId !== item.id;
-    setExpandedSubscriptionId((currentId) =>
-      currentId === item.id ? null : item.id,
-    );
-    posthog.capture(
-      isExpanding ? "subscription_expanded" : "subscription_collapsed",
-      {
-        subscription_name: item.name,
-        subscription_id: item.id,
-      },
-    );
-  };
+  // This week's chores for the whole flat, joined against their chore
+  // definition for name/icon — see the note below about this join.
+  const thisWeeksChores = useMemo(() => {
+    return assignments
+      .filter((a) => a.weekStart === weekStart)
+      .map((a) => {
+        const chore = chores.find((c) => c.id === a.choreId);
+        return {
+          assignment: a,
+          name: chore?.name ?? "Chore",
+          icon: chore?.icon ?? icons.add,
+        };
+      });
+  }, [assignments, chores, weekStart]);
 
-  const handleCreateSubscription = (newSubscription: Subscription) => {
-    addSubscription(newSubscription);
-    posthog.capture("subscription_created", {
-      subscription_name: newSubscription.name,
-      subscription_price: newSubscription.price,
-      subscription_frequency: newSubscription.frequency ?? "unknown",
-      subscription_category: newSubscription.category ?? "unknown",
-    });
-  };
-
-  // Get user display name: firstName, fullName, or email
-  const displayName =
-    user?.firstName ||
-    user?.fullName ||
-    user?.emailAddresses[0]?.emailAddress ||
-    "User";
+  const displayName = user?.fullName || "User";
+  const avatarUrl = user?.imageUrl;
+  const flatImg = images.flat;
 
   return (
     <SafeAreaView className="flex-1 bg-background p-5">
-      <FlatList
-        ListHeaderComponent={() => (
-          <>
-            <View className="home-header">
-              <View className="home-user">
-                <Image
-                  source={
-                    user?.imageUrl ? { uri: user.imageUrl } : images.avatar
-                  }
-                  className="home-avatar"
-                />
-                <Text className="home-user-name"></Text>
-                {/* Here we set to display the username of the user */}
-              </View>
-
-              <Pressable onPress={() => setIsModalVisible(true)}>
-                <Image source={icons.add} className="home-add-icon" />
-              </Pressable>
-            </View>
-
-            <View className="home-balance-card">
-              <Text className="home-balance-label">Flat name here</Text>
-
-              <View className="home-balance-row">
-                <Text className="home-balance-amount">flat members here</Text>
-                <Text className="home-balance-date">26</Text>
-              </View>
-            </View>
-
-            <View className="mb-5">
-              <ListHeading title="Upcoming" />
-
-              {/* replace with upcoming payments and owed money */}
-              <FlatList
-                data={upcomingSubscriptions}
-                renderItem={({ item }) => (
-                  <UpcomingSubscriptionCard daysLeft={0} {...item} />
-                )}
-                keyExtractor={(item) => item.id}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                ListEmptyComponent={
-                  <Text className="home-empty-state">
-                    No upcoming renewals yet.
-                  </Text>
-                }
-              />
-            </View>
-
-            <ListHeading title="Chores" />
-          </>
-        )}
-        data={subscriptions}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <SubscriptionCard
-            {...item}
-            expanded={expandedSubscriptionId === item.id}
-            onPress={() => handleSubscriptionPress(item)}
-          />
-        )}
-        extraData={expandedSubscriptionId}
-        ItemSeparatorComponent={() => <View className="h-4" />}
+      <ScrollView
         showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <Text className="home-empty-state">No subscriptions yet.</Text>
-        }
-        contentContainerClassName="pb-30"
-      />
+        contentContainerStyle={{ paddingBottom: 40 }}
+      >
+        <View className="home-header">
+          <View className="home-user">
+            <Image
+              source={avatarUrl ? { uri: avatarUrl } : images.avatar}
+              className="home-avatar"
+            />
+            <Text className="home-user-name">{displayName}</Text>
+          </View>
 
-      <CreateSubscriptionModal
-        visible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
-        onSubmit={handleCreateSubscription}
-      />
+          <View className="flex-row gap-3"></View>
+        </View>
+        /\/ this will be the flat area.
+        <View className="home-header">
+          <View className="home-user">
+            <Image source={images.flat} className="home-avatar" />
+            <Text className="home-user-name">{displayName}</Text>
+          </View>
+
+          <View className="flex-row gap-3"></View>
+        </View>
+        <View className="mb-6 mt-4">
+          <ListHeading title="Upcoming bills" />
+          <FlatList
+            data={upcomingBills}
+            renderItem={({ item }) => (
+              <UpcomingBillCard daysLeft={0} {...item} />
+            )}
+            keyExtractor={(item) => item.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            ListEmptyComponent={
+              <Text className="home-empty-state">
+                Nothing due in the next week.
+              </Text>
+            }
+          />
+        </View>
+        <View>
+          <ListHeading title="This week's chores" />
+          <View style={{ gap: 8 }}>
+            {thisWeeksChores.length === 0 && (
+              <Text className="home-empty-state">No chores set up yet.</Text>
+            )}
+            {thisWeeksChores.map(({ assignment, name, icon }) => (
+              <ChoreRow
+                key={assignment.id}
+                name={name}
+                icon={icon}
+                assignee={assignment.assignee}
+                completed={assignment.completed}
+                onComplete={() => completeAssignment(assignment.id)}
+              />
+            ))}
+          </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

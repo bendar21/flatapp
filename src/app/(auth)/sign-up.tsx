@@ -48,7 +48,7 @@ const SignUp = () => {
 
     setIsSubmitting(true);
     setFormError(null);
-    const { error } = await signUp(emailAddress, password);
+    const { error } = await signUp(emailAddress, password, name);
     setIsSubmitting(false);
 
     if (error) {
@@ -198,10 +198,6 @@ const SignUp = () => {
                   <Text className="auth-wordmark-sub">FLAT LIFE, SORTED</Text>
                 </View>
               </View>
-              <Text className="auth-title">Create your account</Text>
-              <Text className="auth-subtitle">
-                Bills, chores, and the food tab — all sorted with your flat
-              </Text>
             </View>
 
             {/* Sign-Up Form */}

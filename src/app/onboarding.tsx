@@ -1,57 +1,116 @@
+import { SLIDES } from "@/constants/data";
 import "@/global.css";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import { styled } from "nativewind";
 import { usePostHog } from "posthog-react-native";
-import React, { useEffect } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  FlatList,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Pressable,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
+import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
+const SafeAreaView = styled(RNSafeAreaView);
 
-// Exported so index.tsx can check the same key. Keep this string in sync —
-// it's just a flag saying "this device has already seen the welcome screen".
 export const ONBOARDING_SEEN_KEY = "hasSeenOnboarding";
 
 const Onboarding = () => {
   const posthog = usePostHog();
+  const { width } = useWindowDimensions();
+  const listRef = useRef<FlatList<Slide>>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     posthog.capture("onboarding_started");
   }, [posthog]);
 
-  const handleGetStarted = async () => {
+  const finishOnboarding = async () => {
     await SecureStore.setItemAsync(ONBOARDING_SEEN_KEY, "true");
-    posthog.capture("onboarding_completed");
+    posthog.capture("onboarding_completed", {
+      last_slide: SLIDES[activeIndex].key,
+    });
     router.replace("/(auth)/sign-in");
   };
 
-  return (
-    <SafeAreaView className="auth-safe-area">
-      <View className="auth-screen">
-        <View className="flex-1 items-center justify-center px-6">
-          <View
-            className="auth-logo-mark"
-            style={{ width: 88, height: 88, borderRadius: 24 }}
-          >
-            <Text className="auth-logo-mark-text" style={{ fontSize: 40 }}>
-              F
-            </Text>
-          </View>
+  const goToNext = () => {
+    const nextIndex = activeIndex + 1;
+    if (nextIndex >= SLIDES.length) {
+      finishOnboarding();
+      return;
+    }
+    listRef.current?.scrollToIndex({ index: nextIndex, animated: true });
+  };
 
-          <Text
-            className="auth-title"
-            style={{ marginTop: 28, textAlign: "center" }}
-          >
-            Welcome to Flatmate
-          </Text>
-          <Text className="auth-subtitle">
-            Bills, chores, and the running food tab — all sorted in one place,
-            so your flat stops arguing about who owes what.
-          </Text>
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const index = Math.round(event.nativeEvent.contentOffset.x / width);
+    if (index !== activeIndex) setActiveIndex(index);
+  };
+
+  const isLastSlide = activeIndex === SLIDES.length - 1;
+
+  return (
+    <SafeAreaView className="flex-1 bg-background">
+      <View style={{ flex: 5 }}>
+        <FlatList
+          ref={listRef}
+          data={SLIDES}
+          keyExtractor={(slide) => slide.key}
+          horizontal
+          pagingEnabled
+          snapToInterval={width}
+          decelerationRate="fast"
+          disableIntervalMomentum
+          showsHorizontalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          renderItem={({ item }) => (
+            <View
+              style={{ width }}
+              className="flex-1 items-center justify-center px-8"
+            >
+              <Text style={{ fontSize: 88 }}>{item.icon}</Text>
+              <Text
+                className="auth-title"
+                style={{ marginTop: 28, textAlign: "center" }}
+              >
+                {item.title}
+              </Text>
+              <Text className="auth-subtitle" style={{ textAlign: "center" }}>
+                {item.subtitle}
+              </Text>
+            </View>
+          )}
+        />
+
+        <View className="flex-row justify-center gap-2 mb-6">
+          {SLIDES.map((slide, index) => (
+            <View
+              key={slide.key}
+              className={
+                index === activeIndex
+                  ? "w-6 h-2 rounded-full bg-primary"
+                  : "w-2 h-2 rounded-full bg-primary/30"
+              }
+            />
+          ))}
         </View>
 
+        <View className="px-6 pb-2">
+          <Pressable className="auth-button" onPress={goToNext}>
+            <Text className="auth-button-text">
+              {isLastSlide ? "Get started" : "Next"}
+            </Text>
+          </Pressable>
+        </View>
         <View className="px-6 pb-10">
-          <TouchableOpacity className="auth-button" onPress={handleGetStarted}>
-            <Text className="auth-button-text">Get started</Text>
-          </TouchableOpacity>
+          <Pressable className="auth-secondary-button" onPress={goToNext}>
+            <Text className="auth-button-text">Already have an account</Text>
+          </Pressable>
         </View>
       </View>
     </SafeAreaView>

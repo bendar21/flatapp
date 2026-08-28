@@ -85,10 +85,6 @@ const SignIn = () => {
                   <Text className="auth-wordmark-sub">FLAT LIFE, SORTED</Text>
                 </View>
               </View>
-              <Text className="auth-title">Welcome back</Text>
-              <Text className="auth-subtitle">
-                Sign in to see what's owing and whose turn it is
-              </Text>
             </View>
 
             {/* Sign-In Form */}
@@ -147,7 +143,7 @@ const SignIn = () => {
 
             {/* Sign-Up Link */}
             <View className="auth-link-row">
-              <Text className="auth-link-copy">Don't have an account?</Text>
+              <Text className="auth-link-copy">Dont have an account?</Text>
               <Link href="/(auth)/sign-up" asChild>
                 <Pressable>
                   <Text className="auth-link">Create Account</Text>

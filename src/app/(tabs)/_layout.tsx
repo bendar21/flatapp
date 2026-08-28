@@ -1,7 +1,8 @@
 import { tabs } from "@/constants/data";
 import { colors, components } from "@/constants/theme";
 import { useAuth } from "@/src/context/AuthContext";
-import clsx from "clsx";
+import { useFlat } from "@/src/context/FlatContext";
+import { clsx } from "clsx";
 import { Redirect, Tabs } from "expo-router";
 import { Image, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -20,6 +21,7 @@ const TabIcon = ({ focused, icon }: TabIconProps) => {
 const TabLayout = () => {
   const { isSignedIn, isLoaded } = useAuth();
   const insets = useSafeAreaInsets();
+  const { hasFlat, isLoaded: flatLoaded } = useFlat();
 
   // Wait for auth to load before rendering anything
   if (!isLoaded) {
@@ -30,6 +32,9 @@ const TabLayout = () => {
   if (!isSignedIn) {
     return <Redirect href="/(auth)/sign-in" />;
   }
+
+  if (!flatLoaded) return null;
+  if (!hasFlat) return <Redirect href="/flat-setup" />;
 
   return (
     <Tabs

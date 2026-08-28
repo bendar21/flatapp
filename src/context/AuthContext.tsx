@@ -1,11 +1,11 @@
 import { supabase } from "@/src/config/supabase";
 import type { Session } from "@supabase/supabase-js";
 import React, {
-    createContext,
-    useCallback,
-    useContext,
-    useEffect,
-    useState,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
 
 type Profile = {
@@ -45,6 +45,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => listener.subscription.unsubscribe();
   }, []);
+
+  // Self-heals the public.users row whenever a session appears, regardless
+  // of which path got us here (code-verified, auto-confirmed, or later
+  // something like Google sign-in). verifyEmailCode also creates this row
+  // on its own path — this just covers the cases that skip it entirely.
+  useEffect(() => {
+    if (!session?.user) return;
+
+    (async () => {
+      const { data: existing } = await supabase
+        .from("users")
+        .select("id")
+        .eq("id", session.user.id)
+        .maybeSingle();
+
+      if (existing) return; // profile already exists — nothing to do
+
+      const name =
+        session.user.user_metadata?.name ||
+        session.user.email?.split("@")[0] ||
+        "New flatmate";
+
+      await supabase.from("users").insert({
+        id: session.user.id,
+        name,
+        email: session.user.email ?? "",
+      });
+    })();
+  }, [session?.user?.id]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -137,13 +166,17 @@ export function useUser(): { user: CompatUser | null; isLoaded: boolean } {
 // ---- useSignUp / useSignIn: email + password with email-code confirmation ----
 
 export function useSignUp() {
-  const signUp = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
-      email: email.trim().toLowerCase(),
-      password,
-    });
-    return { error: error?.message ?? null };
-  }, []);
+  const signUp = useCallback(
+    async (email: string, password: string, name: string) => {
+      const { error } = await supabase.auth.signUp({
+        email: email.trim().toLowerCase(),
+        password,
+        options: { data: { name: name.trim() } },
+      });
+      return { error: error?.message ?? null };
+    },
+    [],
+  );
 
   const verifyEmailCode = useCallback(
     async (email: string, code: string, name: string) => {
