@@ -59,6 +59,7 @@ export default function Home() {
 
   const displayName = user?.fullName || "User";
   const avatarUrl = user?.imageUrl;
+  const flatImg = images.flat;
 
   return (
     <SafeAreaView className="flex-1 bg-background p-5">
@@ -77,7 +78,15 @@ export default function Home() {
 
           <View className="flex-row gap-3"></View>
         </View>
+        /\/ this will be the flat area.
+        <View className="home-header">
+          <View className="home-user">
+            <Image source={images.flat} className="home-avatar" />
+            <Text className="home-user-name">{displayName}</Text>
+          </View>
 
+          <View className="flex-row gap-3"></View>
+        </View>
         <View className="mb-6 mt-4">
           <ListHeading title="Upcoming bills" />
           <FlatList
@@ -95,7 +104,6 @@ export default function Home() {
             }
           />
         </View>
-
         <View>
           <ListHeading title="This week's chores" />
           <View style={{ gap: 8 }}>

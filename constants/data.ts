@@ -116,7 +116,7 @@ export const HOME_CHORES: Chore[] = [
   {
     id: "chore1",
     icon: icons.bathroom,
-    name: "clean toilet",
+    name: "Bathroom",
     category: "bathroom",
     color: "#b8e8d0",
     delegationType: "fixed_rotation",
@@ -125,9 +125,9 @@ export const HOME_CHORES: Chore[] = [
   {
     id: "chore2",
     icon: icons.bathroom,
-    name: "clean toilet",
+    name: "Bins",
     category: "bathroom",
-    color: "#b8e8d0",
+    color: "#f5c542",
     delegationType: "fixed_rotation",
     members: ["ben", " joe"],
   },
